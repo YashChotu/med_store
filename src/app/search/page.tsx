@@ -1,10 +1,12 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ShoppingCart, Search as SearchIcon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import { Suspense } from "react";
 
-const products = [
+const allProducts = [
   {
     id: 1,
     name: "Paracetamol 500mg",
@@ -13,7 +15,6 @@ const products = [
     originalPrice: 7.99,
     discount: "25% OFF",
     image: "💊",
-    prescription: false,
   },
   {
     id: 2,
@@ -23,7 +24,6 @@ const products = [
     originalPrice: 15.99,
     discount: "19% OFF",
     image: "💊",
-    prescription: false,
   },
   {
     id: 3,
@@ -33,7 +33,6 @@ const products = [
     originalPrice: 59.99,
     discount: "23% OFF",
     image: "🩺",
-    prescription: false,
   },
   {
     id: 4,
@@ -43,7 +42,6 @@ const products = [
     originalPrice: 24.99,
     discount: "24% OFF",
     image: "💊",
-    prescription: false,
   },
   {
     id: 5,
@@ -53,7 +51,6 @@ const products = [
     originalPrice: 12.99,
     discount: "31% OFF",
     image: "🌡️",
-    prescription: false,
   },
   {
     id: 6,
@@ -63,15 +60,39 @@ const products = [
     originalPrice: 19.99,
     discount: "25% OFF",
     image: "💊",
-    prescription: false,
+  },
+  {
+    id: 7,
+    name: "Ibuprofen 400mg",
+    category: "Pain Relief",
+    price: 6.99,
+    originalPrice: 9.99,
+    discount: "30% OFF",
+    image: "💊",
+  },
+  {
+    id: 8,
+    name: "Calcium Tablets",
+    category: "Supplements",
+    price: 11.99,
+    originalPrice: 14.99,
+    discount: "20% OFF",
+    image: "💊",
   },
 ];
 
-export default function FeaturedProducts() {
+function SearchResults() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q") || "";
   const { addToCart } = useCart();
   const { showToast } = useToast();
 
-  const handleAddToCart = (product: typeof products[0]) => {
+  const filteredProducts = allProducts.filter((product) =>
+    product.name.toLowerCase().includes(query.toLowerCase()) ||
+    product.category.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const handleAddToCart = (product: typeof allProducts[0]) => {
     addToCart({
       id: product.id,
       name: product.name,
@@ -83,17 +104,25 @@ export default function FeaturedProducts() {
   };
 
   return (
-    <section id="featured-products" className="py-12 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold">Featured Products</h2>
-          <button className="text-primary-600 font-semibold hover:underline">
-            View All
-          </button>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Search Results</h1>
+        <p className="text-gray-600">
+          {filteredProducts.length} results found for "{query}"
+        </p>
+      </div>
+
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-16">
+          <SearchIcon className="mx-auto text-gray-400 mb-4" size={64} />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No results found</h2>
+          <p className="text-gray-600 mb-6">
+            Try searching with different keywords
+          </p>
         </div>
-        
+      ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div
               key={product.id}
               className="bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden"
@@ -122,7 +151,19 @@ export default function FeaturedProducts() {
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">Loading...</div>
       </div>
-    </section>
+    }>
+      <SearchResults />
+    </Suspense>
   );
 }

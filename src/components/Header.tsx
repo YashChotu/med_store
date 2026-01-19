@@ -3,9 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Search, ShoppingCart, User, Menu, X, Upload } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { getTotalItems } = useCart();
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -18,14 +31,18 @@ export default function Header() {
 
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for medicines, health products..."
                 className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
-              <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
-            </div>
+              <button type="submit" className="absolute right-3 top-2.5 text-gray-400 hover:text-primary-600">
+                <Search size={20} />
+              </button>
+            </form>
           </div>
 
           {/* Desktop Navigation */}
@@ -36,9 +53,11 @@ export default function Header() {
             </Link>
             <Link href="/cart" className="relative text-gray-700 hover:text-primary-600">
               <ShoppingCart size={24} />
-              <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getTotalItems()}
+                </span>
+              )}
             </Link>
             <Link href="/account" className="text-gray-700 hover:text-primary-600">
               <User size={24} />
@@ -56,14 +75,18 @@ export default function Header() {
 
         {/* Search Bar - Mobile */}
         <div className="md:hidden pb-4">
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search medicines..."
               className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-            <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
-          </div>
+            <button type="submit" className="absolute right-3 top-2.5 text-gray-400 hover:text-primary-600">
+              <Search size={20} />
+            </button>
+          </form>
         </div>
       </div>
 
@@ -77,7 +100,7 @@ export default function Header() {
             </Link>
             <Link href="/cart" className="flex items-center gap-2 text-gray-700">
               <ShoppingCart size={20} />
-              <span>Cart (0)</span>
+              <span>Cart ({getTotalItems()})</span>
             </Link>
             <Link href="/account" className="flex items-center gap-2 text-gray-700">
               <User size={20} />

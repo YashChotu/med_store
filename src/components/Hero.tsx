@@ -1,6 +1,11 @@
+"use client";
+
 import { Pill, Upload, Truck, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+  const router = useRouter();
+
   return (
     <section className="bg-gradient-to-br from-primary-50 to-orange-100">
       <div className="container mx-auto px-4 py-16 md:py-24">
@@ -13,10 +18,19 @@ export default function Hero() {
               Order genuine medicines online with prescription upload and get doorstep delivery
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-700 transition">
+              <button 
+                onClick={() => {
+                  const element = document.getElementById('featured-products');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-700 transition"
+              >
                 Order Now
               </button>
-              <button className="border-2 border-primary-600 text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition">
+              <button 
+                onClick={() => router.push('/upload-prescription')}
+                className="border-2 border-primary-600 text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition"
+              >
                 Upload Prescription
               </button>
             </div>
